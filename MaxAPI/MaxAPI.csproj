@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="MsgPack">
+      <HintPath>..\..\MsgPack\MsgPack\bin\Release\net9.0\publish\win-x64\MsgPack.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
