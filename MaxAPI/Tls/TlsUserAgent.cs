@@ -1,6 +1,6 @@
-﻿namespace MaxAPI;
+﻿namespace MaxAPI.Tls;
 
-public struct UserAgent
+public class TlsUserAgent
 {
     public string deviceType;
     public string appVersion;
@@ -12,14 +12,14 @@ public struct UserAgent
     public string timezone;
     public int buildNumber;
 
-    public static UserAgent Default => new()
+    public static TlsUserAgent Default => new()
     {
         deviceType = "DESKTOP",
-        appVersion = "25.12.2",
+        appVersion = "25.21.1",
         osVersion = "Windows 10 Version 2004",
-        locale = "en",
-        deviceLocale = "en",
-        deviceName = "00000000-0000-0",
+        locale = "ru",
+        deviceLocale = "ru",
+        deviceName = "DESKTOP-0000000",
         screen = "1.0x",
         timezone = "Europe/Moscow",
         buildNumber = 40698

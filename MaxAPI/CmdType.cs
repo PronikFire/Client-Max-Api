@@ -2,13 +2,12 @@
 
 namespace MaxAPI;
 
-public enum MaxCmdType : byte
+public enum CmdType : byte
 {
     //Все пакеты от клиента идут с типом Request
     Request = 0,
     //Большинство ответов от сервера идут с типом Ok
-    Ok = 1,
-    //Ответы с ошибками идут с типом Error
-    //Где 2? без понятия
+    Response = 1,
+    // Я видел 2 в Web версии но не понимаю зачем он нужен
     Error = 3
 }
