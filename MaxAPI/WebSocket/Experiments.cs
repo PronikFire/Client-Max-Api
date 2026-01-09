@@ -7,11 +7,8 @@ using System.Threading.Tasks;
 
 namespace MaxAPI.WebSocket;
 
-public struct WssMaxMessage()
+public class Experiments
 {
-    public byte ver = 11;
-    public CmdType cmd = CmdType.Request;
-    public ushort seq = 0;
-    public ushort opcode = 0;
-    public object? payload = null;
+    [JsonInclude, JsonPropertyName("app.ab.test.exp")]
+    public bool appAbTestExp = false;
 }

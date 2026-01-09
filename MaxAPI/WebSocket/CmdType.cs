@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MaxAPI;
+namespace MaxAPI.WebSocket;
 
 public enum CmdType : byte
 {

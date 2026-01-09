@@ -1,29 +1,32 @@
-﻿using MaxAPI;
-using MaxAPI.Tls;
-using MaxAPI.WebSocket;
-using MaxAPI.WebSocket.Packets;
+﻿using MaxAPI.WebSocket;
 using MaxAPI.WebSocket.Payloads;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Numerics;
 using System.Text.Json;
 
-WssMaxClient client = new();
-var request = new WssMsgClientInfo(WssUserAgent.Default, Guid.NewGuid())
-    .GetMessage();
-await client.SendAsync(request);
-var response = await client.ReceiveAsync();
-WssMaxException.ThrowIfError(response);
 
-Console.Write("Введите токен авторизации: ");
-request = new WssMsgConnectByToken(Console.ReadLine())
-    .GetMessage();
-await client.SendAsync(request);
-response = await client.ReceiveAsync();
-WssMaxException.ThrowIfError(response);
 
-response = await client.ReceiveAsync();
-WssMaxException.ThrowIfError(response);
+MaxWssClient client = new();
+await client.ConnectAsync();
 
-Debugger.Break();
+{
+    var request = new MsgSetClientInfo.Request(MsgSetClientInfo.UserAgent.Default, Guid.NewGuid());
+    await client.SendAsync(MsgSetClientInfo.OPCODE, request);
+    var response = await client.ReceiveAsync();
+    MaxException.ThrowIfError(response);
+}
+
+{
+    Console.WriteLine("Введите токен авторизации: ");
+    var request = new MsgAuthToken.Request(Console.ReadLine()!);
+    await client.SendAsync(MsgAuthToken.OPCODE, request);
+    MaxMessage response;
+    do
+    {
+        response = await client.ReceiveAsync();
+        MaxException.ThrowIfError(response);
+    } while (MsgAuthToken.OPCODE != response.opcode);
+    var MsgAuthTokenResponse = ((JsonElement)response.payload!).Deserialize<MsgAuthToken.Response>();
+
+    Debugger.Break();
+}

@@ -1,13 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36414.22
+# Visual Studio Version 18
+VisualStudioVersion = 18.1.11312.151 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaxAPI", "MaxAPI\MaxAPI.csproj", "{14E8229D-400E-913E-0C7F-9CD98D92DE86}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSocket Test", "WebSocket Test\WebSocket Test.csproj", "{352E64B6-819A-4C1B-857A-9EDC274CA27A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tls Test", "Tls Test\Tls Test.csproj", "{CAB06C40-AB28-7EC3-D1E3-68D9A7E962B9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +21,6 @@ Global
 		{352E64B6-819A-4C1B-857A-9EDC274CA27A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{352E64B6-819A-4C1B-857A-9EDC274CA27A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{352E64B6-819A-4C1B-857A-9EDC274CA27A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CAB06C40-AB28-7EC3-D1E3-68D9A7E962B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CAB06C40-AB28-7EC3-D1E3-68D9A7E962B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CAB06C40-AB28-7EC3-D1E3-68D9A7E962B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CAB06C40-AB28-7EC3-D1E3-68D9A7E962B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
