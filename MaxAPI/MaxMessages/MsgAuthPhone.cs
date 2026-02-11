@@ -1,10 +1,5 @@
 ﻿using MsgPack;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace MaxAPI.MaxMessages;
 
@@ -16,7 +11,7 @@ public static class MsgAuthPhone
     {
         [JsonInclude, JsonPropertyName("phone")]
         [MsgPackInclude, MsgPackName("phone")]
-        public string phone = phone;
+        public readonly string phone = phone;
 
         //Когда будет не лень, надо сделать конвертацию Enum в строку как в Json
         //Ну и соответственно сделать Enum для этого поля

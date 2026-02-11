@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
@@ -53,4 +55,14 @@ public struct MaxMessage()
     /// <remarks>The payload can be any serializable value, including null.</remarks>
     [JsonInclude, JsonPropertyName("payload")]
     public object? payload = null;
+
+    public T JsonSerializePayload<T>()
+    {
+        ArgumentNullException.ThrowIfNull(payload, nameof(payload));
+
+        if (payload is not JsonElement payloadJE)
+            throw new ArgumentNullException(nameof(payload), "Payload is not " + nameof(JsonElement));
+
+        return payloadJE.Deserialize<T>()!;
+    }
 }

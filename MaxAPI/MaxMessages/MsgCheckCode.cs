@@ -16,11 +16,11 @@ public static class MsgCheckCode
     {
         [JsonInclude, JsonPropertyName("token")]
         [MsgPackInclude, MsgPackName("token")]
-        public string token = token;
+        public readonly string token = token;
 
         [JsonInclude, JsonPropertyName("verifyCode")]
         [MsgPackInclude, MsgPackName("verifyCode")]
-        public string verifyCode = verifyCode;
+        public readonly string verifyCode = verifyCode;
 
         [JsonInclude, JsonPropertyName("authTokenType")]
         [MsgPackInclude, MsgPackName("authTokenType")]

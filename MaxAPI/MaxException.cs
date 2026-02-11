@@ -28,16 +28,27 @@ public class MaxException : Exception
 
     public override string Message => $"{error} : {message} ({localizedMessage})";
 
+    public static bool TryParse(MaxMessage message, out MaxException exception)
+    {
+        exception = default!;
+
+        if (message.cmd != CmdType.Error)
+            return false;
+
+        exception = message.payload switch
+        {
+            byte[] binaryPayload => MsgPackSerialize.Deserialize<MaxException>(binaryPayload)!,
+            JsonElement element => element.Deserialize<MaxException>()!,
+            _ => default!,
+        };
+        return true;
+    }
+
     public static void ThrowIfError(MaxMessage message)
     {
-        if (message.cmd != CmdType.Error)
+        if (!TryParse(message, out MaxException exception))
             return;
-        MaxException exception = message.payload switch
-        {
-            byte[] binaryPayload => MsgPackSerialize.Deserialize<MaxException>(binaryPayload),
-            JsonElement element => element.Deserialize<MaxException>()!,
-            _ => throw new Exception("Not supported payload type."),
-        };
+
         throw exception;
     }
 }

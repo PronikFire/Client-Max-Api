@@ -18,9 +18,12 @@ public enum ElementType
     [JsonStringEnumMemberName("EMPHASIZED")]
     Emphasized,
 
-    [JsonStringEnumMemberName("EMPHASIZED")]
+    [JsonStringEnumMemberName("UNDERLINE")]
     Underline,
 
-    [JsonStringEnumMemberName("EMPHASIZED")]
-    Strikethrough
+    [JsonStringEnumMemberName("STRIKETHROUGH")]
+    Strikethrough,
+
+    [JsonStringEnumMemberName("QUOTE")]
+    Quote,
 }
