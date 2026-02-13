@@ -22,8 +22,12 @@ public static class MsgLogin
         [JsonInclude, JsonPropertyName("chatsCount")]
         public uint chatsCount = 40;
 
+        [JsonInclude, JsonPropertyName("lastLogin")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public long lastLogin;
+
         [JsonInclude, JsonPropertyName("chatsSync")]
-        public uint chatsSync = 0;
+        public long chatsSync = 0;
 
         [JsonInclude, JsonPropertyName("contactsSync")]
         public uint contactsSync = 0;
@@ -33,6 +37,10 @@ public static class MsgLogin
 
         [JsonInclude, JsonPropertyName("draftsSync")]
         public uint draftsSync = 0;
+
+        [JsonInclude, JsonPropertyName("configHash")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? configHash;
     }
 
     public struct Response

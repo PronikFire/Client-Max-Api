@@ -56,7 +56,7 @@ public struct MaxMessage()
     [JsonInclude, JsonPropertyName("payload")]
     public object? payload = null;
 
-    public T JsonSerializePayload<T>()
+    public T JsonDeserializePayload<T>()
     {
         ArgumentNullException.ThrowIfNull(payload, nameof(payload));
 

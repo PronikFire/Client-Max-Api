@@ -21,12 +21,13 @@ public class MaxWebClient : IDisposable
     public int ReceiveBufferSize { get; init; } = 1024;
     public WebUserAgent UserAgent { get; init; } = new WebUserAgent();
     public long KeepAlivePeriod { get; init; } = 30000;
+    public Config? Config { get; private set; }
 
     public long receiveTimeout = 5000;
     public long receiveCheckPeriod = 30;
     public bool interactive = true;
     public readonly string token;
-    public event Action<MaxMessage>? onServerRequest;
+    public NewMessageEventHandler? OnNewMessage;
 
     private ClientWebSocket? webSocket = new();
     private long lastSendTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
@@ -35,7 +36,6 @@ public class MaxWebClient : IDisposable
     private Task? reconnectTask;
     private readonly ConcurrentDictionary<ushort, TaskCompletionSource<MaxMessage>> pendingResponses = new();
     private readonly Uri serverUri = new("wss://ws-api.oneme.ru/websocket");
-    private bool disposed = false;
 
     public static async Task<(MaxWebClient, MsgLogin.Response)> Connect(string token, WebUserAgent userAgent, CancellationToken cancellationToken = default)
     {
@@ -43,19 +43,25 @@ public class MaxWebClient : IDisposable
 
         MaxWebClient client = new(token) { UserAgent = userAgent };
 
-        var response = await client.ConnectAsync(cancellationToken).ConfigureAwait(false);
+        await client.ConnectAsync(cancellationToken).ConfigureAwait(false);
 
-        return (client, response);
+        var jsonLoginResponse = await client.SendAndWaitAsync(MsgLogin.OPCODE, new MsgLogin.Request(token), cancellationToken);
+        MaxException.ThrowIfError(jsonLoginResponse);
+        var loginResponse =  jsonLoginResponse.JsonDeserializePayload<MsgLogin.Response>();
+        
+        client.Config = loginResponse.config;
+
+        return (client, loginResponse);
     }
 
-    public async Task<MaxMessage> SendAsync(ushort opcode, object? payload, CancellationToken cancellationToken = default)
+    public async Task<MaxMessage> CallAsync(ushort opcode, object? payload, CancellationToken cancellationToken = default)
     {
         if (!IsConnected)
             throw new InvalidOperationException("Client is not connected.");
 
         reconnectTask?.Wait(cancellationToken);
 
-        if (this.seq == ushort.MaxValue)
+        if (seq == ushort.MaxValue)
         {
             var newTask = Task.Run(async () =>
             {
@@ -64,14 +70,23 @@ public class MaxWebClient : IDisposable
                     await Task.WhenAll(tasks).ConfigureAwait(false);
 
                 await DisconnectAsync().ConfigureAwait(false);
+
                 await ConnectAsync().ConfigureAwait(false);
+
+                var loginResponse = await SendAndWaitAsync(MsgLogin.OPCODE, new MsgLogin.Request(token) { configHash = Config!.hash }, cancellationToken);
+                MaxException.ThrowIfError(loginResponse);
             }, CancellationToken.None);
 
-            Interlocked.CompareExchange(ref reconnectTask, newTask, null);
+            _ = Interlocked.CompareExchange(ref reconnectTask, newTask, null);
 
             reconnectTask.Wait(cancellationToken);
         }
 
+        return await SendAndWaitAsync(opcode, payload, cancellationToken);
+    }
+
+    private async Task<MaxMessage> SendAndWaitAsync(ushort opcode, object? payload, CancellationToken cancellationToken = default)
+    {
         ushort seq = (ushort)Interlocked.Increment(ref this.seq);
 
         var message = new MaxMessage()
@@ -108,11 +123,6 @@ public class MaxWebClient : IDisposable
         }
     }
 
-    private MaxWebClient(string token)
-    {
-        this.token = token ?? throw new ArgumentNullException(nameof(token));
-    }
-
     private async Task SendAsync(MaxMessage message, CancellationToken cancellationToken = default)
     {
         if (!IsConnected)
@@ -121,6 +131,7 @@ public class MaxWebClient : IDisposable
         var jsonMessage = JsonSerializer.Serialize(message);
         var messageBytes = Encoding.UTF8.GetBytes(jsonMessage);
         await webSocket!.SendAsync(messageBytes, WebSocketMessageType.Text, true, cancellationToken);
+        
         Interlocked.Exchange(ref lastSendTime, DateTimeOffset.Now.ToUnixTimeMilliseconds());
     }
 
@@ -149,11 +160,8 @@ public class MaxWebClient : IDisposable
         return JsonSerializer.Deserialize<MaxMessage>(jsonMessage);
     }
 
-    private async Task<MsgLogin.Response> ConnectAsync(CancellationToken cancellationToken = default)
+    private async Task ConnectAsync(CancellationToken cancellationToken = default)
     {
-        if (IsConnected)
-            throw new InvalidOperationException("Client was already connected.");
-
         seq = 0;
         webSocket = new ClientWebSocket();
 
@@ -165,24 +173,17 @@ public class MaxWebClient : IDisposable
         _ = Task.Run(() => ReceiveLoop(loopCTS!.Token), CancellationToken.None);
         _ = Task.Run(() => KeepAliveLoop(loopCTS.Token), CancellationToken.None);
 
-        var clientInfoResponse = await SendAsync(MsgSetClientInfo.OPCODE, new MsgSetClientInfo.Request(UserAgent, Guid.NewGuid()), cancellationToken);
+        var clientInfoResponse = await SendAndWaitAsync(MsgSetClientInfo.OPCODE, new MsgSetClientInfo.Request(UserAgent, Guid.NewGuid()), cancellationToken);
         MaxException.ThrowIfError(clientInfoResponse);
-
-        var loginResponse = await SendAsync(MsgLogin.OPCODE, new MsgLogin.Request(token), cancellationToken);
-        MaxException.ThrowIfError(loginResponse);
-        return loginResponse.JsonSerializePayload<MsgLogin.Response>();
     }
 
     private async Task DisconnectAsync(CancellationToken cancellationToken = default)
     {
-        if (!IsConnected)
-            return;
-
         await loopCTS!.CancelAsync().ConfigureAwait(false);
         loopCTS.Dispose();
 
         foreach (var kv in pendingResponses)
-            kv.Value.SetCanceled();
+            kv.Value.SetCanceled(cancellationToken);
         pendingResponses.Clear();
 
         await webSocket!.CloseAsync(WebSocketCloseStatus.NormalClosure, null, cancellationToken);
@@ -199,7 +200,7 @@ public class MaxWebClient : IDisposable
 
             if (delay <= 0)
             {
-                await SendAsync(MsgInteractivePing.OPCODE, new MsgInteractivePing.Request(interactive), cancellationToken).ConfigureAwait(false);
+                await CallAsync(MsgInteractivePing.OPCODE, new MsgInteractivePing.Request(interactive), cancellationToken).ConfigureAwait(false);
                 continue;
             }
 
@@ -215,12 +216,43 @@ public class MaxWebClient : IDisposable
             switch (message.cmd)
             {
                 case CmdType.Request:
-                    onServerRequest?.Invoke(message);
+                    await ServerRequestHandler(message);
                     break;
                 default:
+                    // Если клиент получает неожиданный seq. Можно поставить throw
+                    if (!pendingResponses.ContainsKey(message.seq))
+                        continue;
+                    
                     pendingResponses[message.seq].SetResult(message);
                     break;
             }
+        }
+    }
+
+    private async Task ServerRequestHandler(MaxMessage requestMessage)
+    {
+        switch (requestMessage.opcode)
+        {
+            case MsgNewMessageEvent.OPCODE:
+                var request = requestMessage.JsonDeserializePayload<MsgNewMessageEvent.Request>();
+                
+                OnNewMessage?.Invoke(this, request);
+
+                var response = new MsgNewMessageEvent.Response()
+                {
+                    chatId = request.chatId,
+                    messageId = request.message.id
+                };
+
+                MaxMessage responseMessage = new()
+                {
+                    opcode = requestMessage.opcode,
+                    seq = requestMessage.seq,
+                    cmd = CmdType.Response,
+                    payload = response
+                };
+                await SendAsync(responseMessage);
+                break;
         }
     }
 
@@ -228,12 +260,18 @@ public class MaxWebClient : IDisposable
     {
         if (IsConnected)
             DisconnectAsync().Wait();
-
         GC.SuppressFinalize(this);
+    }
+
+    private MaxWebClient(string token)
+    {
+        this.token = token ?? throw new ArgumentNullException(nameof(token));
     }
 
     ~MaxWebClient()
     {
         Dispose();
     }
+
+    public delegate void NewMessageEventHandler(object sender, MsgNewMessageEvent.Request messageInfo);
 }
