@@ -11,7 +11,7 @@
 
 ### Как пользоваться
 
-```
+```C#
 var connectInfo = await MaxWebClient.Connect(token, WebUserAgent.Default);
 
 var client = connectInfo.Item1;
