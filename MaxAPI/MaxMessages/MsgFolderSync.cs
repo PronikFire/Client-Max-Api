@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace MaxAPI.MaxMessages;
 
@@ -14,7 +9,7 @@ public class MsgFolderSync
     public struct Request(int folderSync)
     {
         [JsonInclude, JsonPropertyName("folderSync")]
-        public readonly int folderSync = folderSync;
+        public int folderSync = folderSync;
     }
 
     public struct Response()

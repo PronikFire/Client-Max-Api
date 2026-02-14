@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace MaxAPI.MaxMessages;
 
@@ -11,13 +6,17 @@ public class MsgNewMessageEvent
 {
     public const ushort OPCODE = 128;
 
-    public struct Request
+    public struct Request()
     {
         [JsonInclude, JsonPropertyName("chatId")]
-        public int chatId;
+        public long chatId;
 
         [JsonInclude, JsonPropertyName("unread")]
-        public int unread;
+        public long unread;
+
+        [JsonInclude, JsonPropertyName("chat")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public Chat? chat;
 
         [JsonInclude, JsonPropertyName("message")]
         public Message message;
@@ -29,13 +28,14 @@ public class MsgNewMessageEvent
         public long mark;
 
         [JsonInclude, JsonPropertyName("prevMessageId")]
-        public string prevMessageId;
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? prevMessageId = null;
     }
 
     public struct Response
     {
         [JsonInclude, JsonPropertyName("chatId")]
-        public int chatId;
+        public long chatId;
 
         [JsonInclude, JsonPropertyName("messageId")]
         public string messageId;

@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace MaxAPI;
 
@@ -13,7 +8,7 @@ namespace MaxAPI;
 /// Represents a message structure used for communication in the Max protocol, containing version, command type,
 /// sequence number, operation code, and an optional payload.
 /// </summary>
-public struct MaxMessage() 
+public struct MaxMessage()
 {
     /// <summary>
     /// Version of the Max protocol message format.

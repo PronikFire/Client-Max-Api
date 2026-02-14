@@ -9,7 +9,7 @@ public static class MsgChatsByIds
     public struct Request(long[] chatIds)
     {
         [JsonInclude, JsonPropertyName("chatIds")]
-        public readonly long[] chatIds = chatIds;
+        public long[] chatIds = chatIds;
     }
 
     public struct Response()

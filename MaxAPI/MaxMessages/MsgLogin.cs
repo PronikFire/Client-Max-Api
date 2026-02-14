@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace MaxAPI.MaxMessages;
 
@@ -17,7 +13,7 @@ public static class MsgLogin
         public bool interactive = true;
 
         [JsonInclude, JsonPropertyName("token")]
-        public readonly string token = token;
+        public string token = token;
 
         [JsonInclude, JsonPropertyName("chatsCount")]
         public uint chatsCount = 40;

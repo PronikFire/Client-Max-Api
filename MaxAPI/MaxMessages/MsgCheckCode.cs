@@ -1,10 +1,5 @@
 ﻿using MsgPack;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace MaxAPI.MaxMessages;
 
@@ -16,11 +11,11 @@ public static class MsgCheckCode
     {
         [JsonInclude, JsonPropertyName("token")]
         [MsgPackInclude, MsgPackName("token")]
-        public readonly string token = token;
+        public string token = token;
 
         [JsonInclude, JsonPropertyName("verifyCode")]
         [MsgPackInclude, MsgPackName("verifyCode")]
-        public readonly string verifyCode = verifyCode;
+        public string verifyCode = verifyCode;
 
         [JsonInclude, JsonPropertyName("authTokenType")]
         [MsgPackInclude, MsgPackName("authTokenType")]

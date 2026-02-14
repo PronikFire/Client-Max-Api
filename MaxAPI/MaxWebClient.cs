@@ -27,7 +27,7 @@ public class MaxWebClient : IDisposable
     public long receiveCheckPeriod = 30;
     public bool interactive = true;
     public readonly string token;
-    public NewMessageEventHandler? OnNewMessage;
+    public event NewMessageEventHandler? OnNewMessage;
 
     private ClientWebSocket? webSocket = new();
     private long lastSendTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
@@ -47,8 +47,8 @@ public class MaxWebClient : IDisposable
 
         var jsonLoginResponse = await client.SendAndWaitAsync(MsgLogin.OPCODE, new MsgLogin.Request(token), cancellationToken);
         MaxException.ThrowIfError(jsonLoginResponse);
-        var loginResponse =  jsonLoginResponse.JsonDeserializePayload<MsgLogin.Response>();
-        
+        var loginResponse = jsonLoginResponse.JsonDeserializePayload<MsgLogin.Response>();
+
         client.Config = loginResponse.config;
 
         return (client, loginResponse);
@@ -131,7 +131,7 @@ public class MaxWebClient : IDisposable
         var jsonMessage = JsonSerializer.Serialize(message);
         var messageBytes = Encoding.UTF8.GetBytes(jsonMessage);
         await webSocket!.SendAsync(messageBytes, WebSocketMessageType.Text, true, cancellationToken);
-        
+
         Interlocked.Exchange(ref lastSendTime, DateTimeOffset.Now.ToUnixTimeMilliseconds());
     }
 
@@ -170,8 +170,8 @@ public class MaxWebClient : IDisposable
         await webSocket.ConnectAsync(serverUri, cancellationToken).ConfigureAwait(false);
 
         loopCTS = new CancellationTokenSource();
-        _ = Task.Run(() => ReceiveLoop(loopCTS!.Token), CancellationToken.None);
-        _ = Task.Run(() => KeepAliveLoop(loopCTS.Token), CancellationToken.None);
+        _ = Task.Run(() => ReceiveLoop(loopCTS.Token), cancellationToken);
+        _ = Task.Run(() => KeepAliveLoop(loopCTS.Token), cancellationToken);
 
         var clientInfoResponse = await SendAndWaitAsync(MsgSetClientInfo.OPCODE, new MsgSetClientInfo.Request(UserAgent, Guid.NewGuid()), cancellationToken);
         MaxException.ThrowIfError(clientInfoResponse);
@@ -222,7 +222,7 @@ public class MaxWebClient : IDisposable
                     // Если клиент получает неожиданный seq. Можно поставить throw
                     if (!pendingResponses.ContainsKey(message.seq))
                         continue;
-                    
+
                     pendingResponses[message.seq].SetResult(message);
                     break;
             }
@@ -235,7 +235,7 @@ public class MaxWebClient : IDisposable
         {
             case MsgNewMessageEvent.OPCODE:
                 var request = requestMessage.JsonDeserializePayload<MsgNewMessageEvent.Request>();
-                
+
                 OnNewMessage?.Invoke(this, request);
 
                 var response = new MsgNewMessageEvent.Response()

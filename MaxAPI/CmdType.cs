@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MaxAPI;
+﻿namespace MaxAPI;
 
 public enum CmdType : byte
 {

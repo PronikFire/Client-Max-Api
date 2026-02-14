@@ -11,7 +11,7 @@ public static class MsgAuthPhone
     {
         [JsonInclude, JsonPropertyName("phone")]
         [MsgPackInclude, MsgPackName("phone")]
-        public readonly string phone = phone;
+        public string phone = phone;
 
         //Когда будет не лень, надо сделать конвертацию Enum в строку как в Json
         //Ну и соответственно сделать Enum для этого поля

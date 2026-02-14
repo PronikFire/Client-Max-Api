@@ -1,7 +1,7 @@
-﻿using System;
+﻿using MsgPack;
+using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using MsgPack;
 
 namespace MaxAPI;
 

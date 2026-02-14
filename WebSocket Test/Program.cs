@@ -7,4 +7,6 @@ var connectInfo = await MaxWebClient.Connect(Console.ReadLine()!, WebUserAgent.D
 
 var client = connectInfo.Item1;
 
+client.OnNewMessage += (o, message) => Console.WriteLine(message.message.text);
+
 Console.ReadLine();

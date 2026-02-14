@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace MaxAPI.MaxMessages;
 
@@ -14,7 +9,7 @@ public class MsgContactsByIds
     public struct Request(long[] contactIds)
     {
         [JsonInclude, JsonPropertyName("contactIds")]
-        public readonly long[] contactIds = contactIds;
+        public long[] contactIds = contactIds;
     }
 
     public struct Response()

@@ -12,11 +12,11 @@ public static class MsgSetClientInfo
     {
         [JsonInclude, JsonPropertyName("userAgent")]
         [MsgPackInclude, MsgPackName("userAgent")]
-        public readonly UserAgent userAgent = userAgent;
+        public UserAgent userAgent = userAgent;
 
         [JsonInclude, JsonPropertyName("deviceId")]
         [MsgPackInclude, MsgPackName("deviceId")]
-        public readonly string deviceId = deviceId.ToString();
+        public string deviceId = deviceId.ToString();
 
         /// <summary>
         /// Using only with App. Anyway you probably don't need change it.

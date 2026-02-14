@@ -1,10 +1,4 @@
-﻿using Microsoft.VisualBasic;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace MaxAPI.MaxMessages;
 
@@ -19,6 +13,6 @@ public class MsgInteractivePing
     public struct Request(bool interactive)
     {
         [JsonInclude, JsonPropertyName("interactive")]
-        public readonly bool interactive = interactive;
+        public bool interactive = interactive;
     }
 }
