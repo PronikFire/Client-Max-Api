@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace MaxAPI;
 
@@ -22,6 +23,7 @@ public class MaxWebClient : IDisposable
     public WebUserAgent UserAgent { get; init; } = new WebUserAgent();
     public long KeepAlivePeriod { get; init; } = 30000;
     public Config? Config { get; private set; }
+    public long UserId { get; private set; }
 
     public long receiveTimeout = 5000;
     public long receiveCheckPeriod = 30;
@@ -50,6 +52,7 @@ public class MaxWebClient : IDisposable
         var loginResponse = jsonLoginResponse.JsonDeserializePayload<MsgLogin.Response>();
 
         client.Config = loginResponse.config;
+        client.UserId = loginResponse.profile.contact.id;
 
         return (client, loginResponse);
     }

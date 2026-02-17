@@ -4,15 +4,15 @@ namespace MaxAPI;
 
 public struct Names()
 {
-    [JsonPropertyName("name")]
+    [JsonInclude, JsonPropertyName("name")]
     public string name = string.Empty;
 
-    [JsonPropertyName("firstName")]
+    [JsonInclude, JsonPropertyName("firstName")]
     public string firstName = string.Empty;
 
-    [JsonPropertyName("lastName")]
+    [JsonInclude, JsonPropertyName("lastName")]
     public string lastName = string.Empty;
 
-    [JsonPropertyName("type")]
+    [JsonInclude, JsonPropertyName("type")]
     public string type = string.Empty;
 }
