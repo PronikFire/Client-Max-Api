@@ -52,4 +52,7 @@ public class Chat : ChatBase
 
     [JsonInclude, JsonPropertyName("options")]
     public ChatOptions options = new();
+
+    [JsonInclude, JsonPropertyName("type")]
+    private readonly string type = "CHAT";
 }

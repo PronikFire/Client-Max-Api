@@ -1,12 +1,11 @@
-﻿using System;
+﻿using MaxAPI.JsonExtension;
+using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace MaxAPI;
 
-[JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
-[JsonDerivedType(typeof(Chat), "CHAT")]
-[JsonDerivedType(typeof(Dialog), "DIALOG")]
+[JsonConverter(typeof(ChatConverter))]
 public abstract class ChatBase
 {
     [JsonIgnore]
@@ -47,9 +46,11 @@ public abstract class ChatBase
     [JsonInclude, JsonPropertyName("cid")]
     public long cid;
     [JsonInclude, JsonPropertyName("lastMessage")]
-    public Message lastMessage;
+    public Message? lastMessage;
     [JsonInclude, JsonPropertyName("joinTime")]
     public long joinTime;
     [JsonInclude, JsonPropertyName("created")]
     public long created;
+    [JsonInclude, JsonPropertyName("videoConversation")]
+    public object? videoConversation;
 }

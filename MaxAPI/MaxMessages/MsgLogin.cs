@@ -48,7 +48,7 @@ public static class MsgLogin
         public Profile profile;
 
         [JsonInclude, JsonPropertyName("chats")]
-        public Chat[] chats;
+        public ChatBase[] chats;
 
         [JsonInclude, JsonPropertyName("chatMarker")]
         public int chatMarker;
