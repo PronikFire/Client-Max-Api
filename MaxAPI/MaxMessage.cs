@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using MessagePack;
 
 namespace MaxAPI;
 
@@ -51,13 +52,15 @@ public struct MaxMessage()
     [JsonInclude, JsonPropertyName("payload")]
     public object? payload = null;
 
-    public T JsonDeserializePayload<T>()
+    public T DeserializePayload<T>()
     {
         ArgumentNullException.ThrowIfNull(payload, nameof(payload));
 
-        if (payload is not JsonElement payloadJE)
-            throw new ArgumentNullException(nameof(payload), "Payload is not " + nameof(JsonElement));
-
-        return payloadJE.Deserialize<T>()!;
+        return payload switch
+        {
+            byte[] binaryPayload => MessagePackSerializer.Deserialize<T>(binaryPayload),
+            JsonElement element => element.Deserialize<T>()!,
+            _ => throw new InvalidOperationException("Cannot deserialize payload")
+        };
     }
 }

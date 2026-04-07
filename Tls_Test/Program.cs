@@ -2,7 +2,7 @@
 using System;
 
 Console.WriteLine("Введите токен авторизации: ");
-var client = await MaxWebClient.SessionLoginAsync(Console.ReadLine()!);
+var client = await MaxAppClient.SessionLoginAsync(Console.ReadLine()!);
 
 client.OnNewMessage += (o, message) => Console.WriteLine(message.message.text);
 

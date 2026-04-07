@@ -1,6 +1,5 @@
-﻿using MsgPack;
+﻿using MessagePack;
 using System;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace MaxAPI;
@@ -8,24 +7,26 @@ namespace MaxAPI;
 /// <summary>
 /// Represents an exception that contains detailed error information returned from a Max protocol message or operation.
 /// </summary>
+[MessagePackObject(true)]
 public class MaxException : Exception
 {
     [JsonInclude, JsonPropertyName("localizedMessage")]
-    [MsgPackInclude, MsgPackName("localizedMessage")]
+    [Key("localizedMessage")]
     public string localizedMessage = string.Empty;
 
     [JsonInclude, JsonPropertyName("error")]
-    [MsgPackInclude, MsgPackName("error")]
+    [Key("error")]
     public string error = string.Empty;
 
     [JsonInclude, JsonPropertyName("message")]
-    [MsgPackInclude, MsgPackName("message")]
+    [Key("message")]
     public string message = string.Empty;
 
     [JsonInclude, JsonPropertyName("title")]
-    [MsgPackInclude, MsgPackName("title")]
+    [Key("title")]
     public string title = string.Empty;
 
+    [IgnoreMember]
     public override string Message => $"{error} : {message} ({localizedMessage})";
 
     public static bool TryParse(MaxMessage message, out MaxException exception)
@@ -35,12 +36,7 @@ public class MaxException : Exception
         if (message.cmd != CmdType.Error)
             return false;
 
-        exception = message.payload switch
-        {
-            byte[] binaryPayload => MsgPackSerialize.Deserialize<MaxException>(binaryPayload)!,
-            JsonElement element => element.Deserialize<MaxException>()!,
-            _ => default!,
-        };
+        exception = message.DeserializePayload<MaxException>();
         return true;
     }
 
@@ -52,3 +48,4 @@ public class MaxException : Exception
         throw exception;
     }
 }
+
